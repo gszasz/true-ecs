@@ -1,0 +1,43 @@
+# True-ECS configuration file
+
+# The Astrometry.net API key
+astrometry_api_key: YOUR-PERSONAL-ASTROMETRY.NET-API-KEY
+
+# Path to the directory where data files are located.  Targets are processed
+# sequentially, so you can use {target} as a placeholder for the target name.
+# Feel free to use glob patterns.
+data_directory: "~/Documents/data/check*/*/*{target}"
+
+# Name of the input image file
+image_filename: "{target}_U_corrected.fits"
+
+# Name of the data file containing the list of positions.  Use space separated
+# ASCII data file.  First two columns should contain image coordinates (x, y) of
+# individual sources.  Note that output file containing ECS
+data_filename: "{target}_U_mag.txt"
+
+# Specify how many lines should be ignored in the input file
+data_header_lines: 1
+
+# Specify names of the columns in the data file.  The data file has to contain
+# at least two columns total and there have to be columns named X and Y.
+data_columns: [X, Y, U_mag, U_mag_err, no_idea]
+
+# Name of the intermediary file containing FITS header with corrected WCS
+# parameters.
+wcs_filename: "{target}_U_corrected_wcs.fits"
+
+# Specify whether ECS should be transformed into ICRS frame
+transform_to_icrs: True
+
+# Name of the output file.  The first two columns of this file contain newly
+# calculated equatorial coordinates in degrees with RA and DEC header.  The rest
+# of the columns will be retained from the input data file, though the file
+# format will be changed to CSV.
+output_filename: "{target}_U_mag_ecs.csv"
+
+# List of targets.  Spaces in the name of targets are not allowed in current
+# release.
+targets:
+  - V_Sge
+  - QR_And
