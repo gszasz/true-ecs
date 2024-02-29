@@ -3,15 +3,16 @@
 Calculates true ECS coordinates from image x, y coordinates using corrected WCS
 parameters.
 
-## Usage
+## Installation
 
-1. Set up permissions.
+1. Clone repository and change into the project directory
 
 ```
-chmod +x astrometry_api.py true_ecs.py
+git clone https://github.com/gszasz/true-ecs.git
+cd true-ecs
 ```
 
-2. Copy example configuration file to the project directory.
+2. Copy the example `config.yaml` into the project directory.
 
 ```
 cp examples/config.yaml .
@@ -23,7 +24,10 @@ reflect your data-file structure.  You can use glob patterns and `{target}`
 placeholer that will be replaced by name of the current target.  List all your
 targets in the list of targets.
 
-3. Run the program.
+## Usage
+
+Program has no command line options.  All options are defined by by the
+`config.yaml` configuration file.
 
 ```
 ./true-ecs.py
