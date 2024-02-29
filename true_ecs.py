@@ -31,71 +31,106 @@ from astropy.table import Table, hstack
 from astrometry_api import Client
 
 
+class Config:
+    def __init__(self, fn):
+        self.data_directory = "."
+        self.image_filename = "{target}.fits"
+        self.data_filename = "{target}.txt"
+        self.custom_data_column_names = None
+        self.wcs_filename = "{target}_wcs.fits"
+        self.overwrite_wcs_file = False
+        self.custom_scale_bounds = None
+        self.transform_to_icrs = False
+        self.output_filename = "{target}_ecs.csv"
+        self.overwrite_output_file = True
+        self.targets = None
+
+        # Load configuration file
+        with open(fn, "r") as f:
+            conf_yaml = yaml.load(f, Loader=yaml.FullLoader)
+
+        self.__dict__.update(conf_yaml)
+
+        if not self.astrometry_api_key:
+            raise Exception("The 'astrometry_api_key' option must be set up.")
+
+        if not self.targets:
+            raise Exception("No targets defined.")
+
+        self.data_directory = os.path.expanduser(self.data_directory)
+
+
 if __name__ == '__main__':
-    # Load configuration file
-    with open("config.yaml", "r") as f:
-        config = yaml.load(f, Loader=yaml.FullLoader)
-
-    api_key = config['astrometry_api_key']
-
-    if not api_key:
-        print("The 'astrometry_api_key' option must be set up.")
-        print("Fatal error.  Terminating.")
+    try:
+        cfg = Config("config.yaml")
+    except Exception as e:
+        print("Failed to load config file:", e)
         sys.exit(-1)
 
-    c = Client()
-    c.login(api_key)
+    client = Client()
+    client.login(cfg.astrometry_api_key)
 
-    for target in config['targets']:
-        print()
-        print(f"TARGET: {target}")
+    for target in cfg.targets:
         print("-------------------------------------------")
-        path = config['data_directory'].format(target=target)
-        path = os.path.expanduser(path)
-        for directory in glob.glob(path):
-            print(f"Found in: {directory}")
-            wcsfn = config['wcs_filename'].format(target=target)
-            wcsfn = f"{directory}/{wcsfn}"
-            # Retrieve wcs file if it does not exist
-            if not os.path.exists(wcsfn):
-                imagefn = config['image_filename'].format(target=target)
-                imagefn = f"{directory}/{imagefn}"
-                if os.path.exists(imagefn):
-                    print("{fn} found...".format(fn=os.path.basename(imagefn)),
-                          "querying WCS solution")
-                    c.retrieve_corrected_wcs(imagefn, wcsfn)
-                else:
-                    print(f"File {imagefn} does not exist.")
-                    print("Fatal error.  Terminating.")
-                    sys.exit(-1)
+        print(f"TARGET: {target}")
+        data_dir_pattern = cfg.data_directory.format(target=target)
+        for data_dir in glob.glob(data_dir_pattern):
+            print("-------------------------------------------")
+            print(f"Found in: {data_dir}")
+            wcsfn = cfg.wcs_filename.format(target=target)
+            wcs_file_path = os.path.join(data_dir, wcsfn)
+            # Retrieve WCS solution if file does not exist or if user enforced
+            # the query using the 'overwrite_wcs_file' option.
+            if not os.path.exists(wcs_file_path) or cfg.overwrite_wcs_file:
+                imagefn = cfg.image_filename.format(target=target)
+                image_file_path = os.path.join(data_dir, imagefn)
+                if not os.path.exists(image_file_path):
+                    print(f"Error: {imagefn} not found: Cannot query WCS "
+                          "solution for this directory.  Skipping.")
+                    continue
+
+                print(f"{imagefn} found: Querying WCS solution...")
+                if cfg.custom_scale_bounds and \
+                   len(cfg.custom_scale_bounds) == 2:
+                    kwargs = dict(scale_lower=cfg.custom_scale_bounds[0],
+                                  scale_upper=cfg.custom_scale_bounds[1],
+                                  scale_type='ul',
+                                  scale_units='degwidth')
+                client.retrieve_corrected_wcs(image_file_path, wcs_file_path,
+                                              **kwargs)
             else:
-                print("WCS solution was already done for this target. ",
-                      "Skipping...")
+                print(f"Info: {wcsfn} found: Skipping WCS solution for this "
+                      "directory.")
 
-            datafn = config['data_filename'].format(target=target)
-            datafn = f"{directory}/{datafn}"
-            if not os.path.exists(datafn):
-                print(f"File {datafn} does not exist.")
-                print("Fatal error.  Terminating.")
-                sys.exit(-1)
+            outputfn = cfg.output_filename.format(target=target)
+            output_file_path = os.path.join(data_dir, outputfn)
+            if os.path.exists(output_file_path) and \
+               not cfg.overwrite_output_file:
+                print(f"Info: {outputfn} found: Skipping ECS calculation for "
+                      "this directory.")
+                continue
 
-            print("{fn} found.".format(fn=os.path.basename(datafn)),
-                  "Converting X,Y coordinates to ECS...")
-            data_t = Table.read(datafn, format='ascii', delimiter='\\s',
-                                data_start=config['data_header_lines'],
-                                names=config['data_columns'])
-            with fits.open(wcsfn) as f:
+            datafn = cfg.data_filename.format(target=target)
+            data_file_path = os.path.join(data_dir, datafn)
+            if not os.path.exists(data_file_path):
+                print(f"Error: {datafn} not found: Cannot calculate ECS for "
+                      "this directory.  Skipping.")
+                continue
+
+            print(f"{datafn} found: Converting X,Y coordinates to ECS...")
+            data_t = Table.read(data_file_path,
+                                format='ascii', delimiter='\\s',
+                                names=cfg.custom_data_column_names)
+            with fits.open(wcs_file_path) as f:
                 w = WCS(f[0].header)
                 sky = w.pixel_to_world(data_t['X'], data_t['Y'])
-                if config['transform_to_icrs']:
-                    print("Transforming to ICRS frame...")
+                if cfg.transform_to_icrs:
+                    print("Transforming ECS to ICRS frame...")
                     sky = sky.transform_to(ICRS)
                 ecs_t = sky.to_table()
                 ecs_t.rename_column('ra', 'RA')
                 ecs_t.rename_column('dec', 'DEC')
 
-            outputfn = config['output_filename'].format(target=target)
-            outputfn = f"{directory}/{outputfn}"
-            print("Writing {fn}...".format(fn=os.path.basename(outputfn)))
-            hstack([ecs_t, data_t]).write(outputfn, format='csv',
+            print(f"Writing {outputfn}...")
+            hstack([ecs_t, data_t]).write(output_file_path, format='csv',
                                           overwrite=True)
