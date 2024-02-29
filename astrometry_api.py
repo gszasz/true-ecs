@@ -293,9 +293,9 @@ class Client(object):
         )
         return result
 
-    def retrieve_corrected_wcs(self, fn, wcsfn):
+    def retrieve_corrected_wcs(self, fn, wcsfn, **kwargs):
         """Retrieve corrected WCS parameters."""
-        upres = self.upload(fn)
+        upres = self.upload(fn, **kwargs)
 
         stat = upres['status']
         if stat != 'success':
