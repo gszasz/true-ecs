@@ -1,6 +1,7 @@
 # True-ECS configuration file
 
-# The Astrometry.net API key
+# Your personal Astrometry.net API key.  You can copy from the 'My Profile'
+# section or https://nova.astrometry.net/api_help
 astrometry_api_key: YOUR-PERSONAL-ASTROMETRY.NET-API-KEY
 
 # Path to the directory where data files are located.  Targets are processed
@@ -8,36 +9,60 @@ astrometry_api_key: YOUR-PERSONAL-ASTROMETRY.NET-API-KEY
 # Feel free to use glob patterns.
 data_directory: "~/Documents/data/check*/*/*{target}"
 
-# Name of the input image file
+# Name of the input image file.  You can use {target} as a placeholder for the
+# target name.  This should be reduced FITS image after applying all required
+# image calibrations.
 image_filename: "{target}_U_corrected.fits"
 
-# Name of the data file containing the list of positions.  Use space separated
-# ASCII data file.  First two columns should contain image coordinates (x, y) of
-# individual sources.  Note that output file containing ECS
+# Name of the data file containing the list of positions.  You can use {target}
+# as a placeholder for the target name.  At this moment the only supported input
+# file format is a whitespace-separated ASCII with at least two columns
+# (containing X and Y positions of sources in pixels).  All input columns are
+# preserved in the output file.
 data_filename: "{target}_U_mag.txt"
 
-# Specify how many lines should be ignored in the input file
-data_header_lines: 1
-
-# Specify names of the columns in the data file.  The data file has to contain
-# at least two columns total and there have to be columns named X and Y.
-data_columns: [X, Y, U_mag, U_mag_err, no_idea]
+# Two columns in the data file has to be explicitly named X and Y.  If it is not
+# the case, you can enforce custom names of the individual data columns.  The
+# custom column names appears in the output file.  The list cannot contain empty
+# strings or duplicates.
+data_columns: [X, Y, U_mag, U_mag_err, daophot_col5]
 
 # Name of the intermediary file containing FITS header with corrected WCS
-# parameters.
+# parameters.  You can use {target} as a placeholder for the target name.
 wcs_filename: "{target}_U_corrected_wcs.fits"
 
-# Specify whether ECS should be transformed into ICRS frame
+# Finding WCS parameters by pattern recognition algorithms is resource-heavy
+# operation.  Once the solution has been found for any particular target, it is
+# not desirable to repeat the same Astrometry.net query again, unless there is
+# something fundamentally wrong with the solution.  If the following option is
+# set to True, it enforces Astrometry.net query for all targets and previously
+# saved WCS solutions are overwritten.  TL;DR: Keep your hands off this option
+# unless you know what you are doing.
+overwrite_wcs_file: False
+
+# Custom scale bounds narrow down the constraints for finding the real pixel
+# scale.  Setting the lower and upper bound close to the real field of view
+# significantly reduces number of iterations.  Both values are in degrees.
+custom_scale_bounds: [0.2, 0.4]
+
+# Specify whether ECS should be transformed into ICRS frame.
 transform_to_icrs: True
 
-# Name of the output file.  The first two columns of this file contain newly
-# calculated equatorial coordinates in degrees with RA and DEC header.  The rest
-# of the columns will be retained from the input data file, though the file
-# format will be changed to CSV.
+# Name of the output file.  You can use {target} as a placeholder for the target
+# name.  The newly calculated equatorial coordinates in degrees are put into RA
+# and DEC columns placed in the beginning, followed by all of the columns from
+# the input data file.  At this moment the only supported output file format is
+# the comma-separated CSV.
 output_filename: "{target}_U_mag_ecs.csv"
 
-# List of targets.  Spaces in the name of targets are not allowed in current
-# release.
+# Re-calculation of the equatorial coordinates runs locally and does not produce
+# any significant overhead.  It is both safe and convenient to refresh contents
+# of the all output files during each True-ECS run.
+overwrite_output_file: True
+
+# List of targets.  The target names have to exactly match strings used in the
+# names of files and directories since these names are replacing the {target}
+# placeholder.
 targets:
   - V_Sge
   - QR_And
