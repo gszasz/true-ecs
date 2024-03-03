@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Calculate true ECS coordinates using corrected WCS parameters.
 
 Copyright (C) 2024  Gabriel Szász
