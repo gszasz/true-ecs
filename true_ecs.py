@@ -32,13 +32,16 @@ from astrometry_api import Client
 
 
 class Config:
+    """Configuration file wrapper."""
+
     def __init__(self, fn):
+        """Load configuration file into an object."""
         self.data_directory = "."
         self.image_filename = "{target}.fits"
         self.data_filename = "{target}.txt"
         self.custom_data_column_names = None
-        self.wcs_filename = "{target}_wcs.fits"
-        self.overwrite_wcs_file = False
+        self.newfits_filename = "{target}_fixed_wcs.fits"
+        self.overwrite_newfits_file = False
         self.custom_scale_bounds = None
         self.transform_to_icrs = False
         self.output_filename = "{target}_ecs.csv"
@@ -77,11 +80,12 @@ if __name__ == '__main__':
         for data_dir in glob.glob(data_dir_pattern):
             print("-------------------------------------------")
             print(f"Found in: {data_dir}")
-            wcsfn = cfg.wcs_filename.format(target=target)
-            wcs_file_path = os.path.join(data_dir, wcsfn)
+            newfitsfn = cfg.newfits_filename.format(target=target)
+            newfits_file_path = os.path.join(data_dir, newfitsfn)
             # Retrieve WCS solution if file does not exist or if user enforced
-            # the query using the 'overwrite_wcs_file' option.
-            if not os.path.exists(wcs_file_path) or cfg.overwrite_wcs_file:
+            # the query using the 'overwrite_newfits_file' option.
+            if not os.path.exists(newfits_file_path) or \
+               cfg.overwrite_newfits_file:
                 imagefn = cfg.image_filename.format(target=target)
                 image_file_path = os.path.join(data_dir, imagefn)
                 if not os.path.exists(image_file_path):
@@ -96,11 +100,11 @@ if __name__ == '__main__':
                                   scale_upper=cfg.custom_scale_bounds[1],
                                   scale_type='ul',
                                   scale_units='degwidth')
-                client.retrieve_corrected_wcs(image_file_path, wcs_file_path,
-                                              **kwargs)
+                client.retrieve_corrected_fits(image_file_path,
+                                               newfits_file_path, **kwargs)
             else:
-                print(f"Info: {wcsfn} found: Skipping WCS solution for this "
-                      "directory.")
+                print(f"Info: {newfitsfn} found: Skipping WCS solution for "
+                      "this directory.")
 
             outputfn = cfg.output_filename.format(target=target)
             output_file_path = os.path.join(data_dir, outputfn)
@@ -121,7 +125,7 @@ if __name__ == '__main__':
             data_t = Table.read(data_file_path,
                                 format='ascii', delimiter='\\s',
                                 names=cfg.custom_data_column_names)
-            with fits.open(wcs_file_path) as f:
+            with fits.open(newfits_file_path) as f:
                 w = WCS(f[0].header)
                 sky = w.pixel_to_world(data_t['X'], data_t['Y'])
                 if cfg.transform_to_icrs:

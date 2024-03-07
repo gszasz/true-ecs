@@ -293,8 +293,8 @@ class Client(object):
         )
         return result
 
-    def retrieve_corrected_wcs(self, fn, wcsfn, **kwargs):
-        """Retrieve corrected WCS parameters."""
+    def retrieve_corrected_fits(self, fn, newfitsfn, **kwargs):
+        """Retrieve new FITS with corrected WCS parameters."""
         upres = self.upload(fn, **kwargs)
 
         stat = upres['status']
@@ -333,10 +333,8 @@ class Client(object):
             time.sleep(5)
 
         retrieveurls = []
-        # We don't need the API for this, just construct URL
-        url = self.apiurl.replace('/api/', '/wcs_file/%i' % solved_id)
-        retrieveurls.append((url, wcsfn))
-
+        url = opt.server.replace('/api/', '/new_fits_file/%i/' % solved_id)
+        retrieveurls.append((url, newfitsfn))
         for url, fn in retrieveurls:
             print('Retrieving file from', url, 'to', fn)
             with urlopen(url) as r:
@@ -344,7 +342,7 @@ class Client(object):
                     shutil.copyfileobj(r, w)
             print('Wrote to', fn)
 
-        return None
+        return success
 
 
 if __name__ == '__main__':
@@ -472,9 +470,9 @@ if __name__ == '__main__':
                       default='d',
                       help='Select license to disallow commercial use of'
                       ' submission')
-    parser.add_option('--retrieve_corrected_wcs',
-                      dest='retrieve_corrected_wcs',
-                      help='Upload image and get corrected wcs.')
+    parser.add_option('--retrieve_corrected_fits',
+                      dest='retrieve_corrected_fits',
+                      help='Upload image and get corrected FITS.')
     opt, args = parser.parse_args()
 
     if opt.apikey is None:
@@ -491,9 +489,10 @@ if __name__ == '__main__':
     c = Client(**args)
     c.login(opt.apikey)
 
-    if opt.retrieve_corrected_wcs:
-        opt.upload = opt.retrieve_corrected_wcs
-        opt.wcs = "%s_wcs%s" % os.path.splitext(opt.retrieve_corrected_wcs)
+    if opt.retrieve_corrected_fits:
+        opt.upload = opt.retrieve_corrected_fits
+        opt.newfits = "%s_fixed_wcs%s" \
+            % os.path.splitext(opt.retrieve_corrected_fits)
 
     if opt.upload or opt.upload_url or opt.upload_xy:
         if opt.wcs or opt.kmz or opt.newfits or opt.corr or opt.annotate:
