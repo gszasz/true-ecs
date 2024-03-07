@@ -27,9 +27,9 @@ data_filename: "{target}_U_mag.txt"
 # strings or duplicates.
 data_columns: [X, Y, U_mag, U_mag_err, daophot_col5]
 
-# Name of the intermediary file containing FITS header with corrected WCS
+# Name of the intermediary file containing new FITS image with corrected WCS
 # parameters.  You can use {target} as a placeholder for the target name.
-wcs_filename: "{target}_U_corrected_wcs.fits"
+newfits_filename: "{target}_U_corrected_wcs.fits"
 
 # Finding WCS parameters by pattern recognition algorithms is resource-heavy
 # operation.  Once the solution has been found for any particular target, it is
@@ -38,7 +38,7 @@ wcs_filename: "{target}_U_corrected_wcs.fits"
 # set to True, it enforces Astrometry.net query for all targets and previously
 # saved WCS solutions are overwritten.  TL;DR: Keep your hands off this option
 # unless you know what you are doing.
-overwrite_wcs_file: False
+overwrite_newfits_file: False
 
 # Custom scale bounds narrow down the constraints for finding the real pixel
 # scale.  Setting the lower and upper bound close to the real field of view
