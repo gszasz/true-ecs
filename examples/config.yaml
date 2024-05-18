@@ -15,16 +15,16 @@ data_directory: "~/Documents/data/check*/*/*{target}"
 image_filename: "{target}_U_corrected.fits"
 
 # Name of the data file containing the list of positions.  You can use {target}
-# as a placeholder for the target name.  At this moment the only supported input
-# file format is a whitespace-separated ASCII with at least two columns
+# as a placeholder for the target name.  At this moment the only supported
+# input file format is a whitespace-separated ASCII with at least two columns
 # (containing X and Y positions of sources in pixels).  All input columns are
 # preserved in the output file.
 data_filename: "{target}_U_mag.txt"
 
-# Two columns in the data file has to be explicitly named X and Y.  If it is not
-# the case, you can enforce custom names of the individual data columns.  The
-# custom column names appears in the output file.  The list cannot contain empty
-# strings or duplicates.
+# Two columns in the data file has to be explicitly named X and Y.  If it is
+# not the case, you can enforce custom names of the individual data columns.
+# The custom column names appears in the output file.  The list cannot contain
+# empty strings or duplicates.
 data_columns: [X, Y, U_mag, U_mag_err, daophot_col5]
 
 # Name of the intermediary file containing new FITS image with corrected WCS
@@ -48,16 +48,16 @@ custom_scale_bounds: [0.2, 0.4]
 # Specify whether ECS should be transformed into ICRS frame.
 transform_to_icrs: True
 
-# Name of the output file.  You can use {target} as a placeholder for the target
-# name.  The newly calculated equatorial coordinates in degrees are put into RA
-# and DEC columns placed in the beginning, followed by all of the columns from
-# the input data file.  At this moment the only supported output file format is
-# the comma-separated CSV.
+# Name of the output file.  You can use {target} as a placeholder for the
+# target name.  The newly calculated equatorial coordinates in degrees are put
+# into RA and DEC columns placed in the beginning, followed by all of the
+# columns from the input data file.  At this moment the only supported output
+# file format is the comma-separated CSV.
 output_filename: "{target}_U_mag_ecs.csv"
 
-# Re-calculation of the equatorial coordinates runs locally and does not produce
-# any significant overhead.  It is both safe and convenient to refresh contents
-# of the all output files during each True-ECS run.
+# Re-calculation of the equatorial coordinates runs locally and does not
+# produce any significant overhead.  It is both safe and convenient to refresh
+# contents of the all output files during each True-ECS run.
 overwrite_output_file: True
 
 # List of targets.  The target names have to exactly match strings used in the
