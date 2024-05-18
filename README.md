@@ -1,3 +1,6 @@
+_Copyright © 2024 Gabriel Szász; see the end of the file for license
+conditions._
+
 # True-ECS
 
 Calculates valid ECS coordinates (RA, DEC) from the image coordinates (X, Y)
@@ -43,7 +46,14 @@ Program has no command line options.  All options are defined by by the
 ./true-ecs.py
 ```
 
-## License
+# Note on copyright years
+
+In copyright notices where the copyright holder is Gabriel Szász, then where a
+range of years appears, this is an inclusive range that applies to every year
+in the range.  For example: 2005-2008 represents the years 2005, 2006, 2007,
+and 2008.
+
+# License conditions
 
 True-ECS is free software: you can redistribute it and/or modify it under the
 terms of the GNU General Public License as published by the Free Software
@@ -55,15 +65,4 @@ WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along with
-True-ECS.  If not, see <https://www.gnu.org/licenses/>.
-﻿
-The use of a range of years within a copyright notice in this distribution
-should be interpreted as being equivalent to a list of years including the first
-and last year specified and all consecutive years between them.
-
-For example, a copyright notice that reads "Copyright (C) 2005, 2007-2009,
-2011-2012" should be interpreted as being identical to a notice that reads
-"Copyright (C) 2005, 2007, 2008, 2009, 2011, 2012" and a copyright notice that
-reads "Copyright (C) 2005-2012" should be interpreted as being identical to a
-notice that reads "Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010, 2011,
-2012".
+True-ECS.  If not, see <https://www.gnu.org/licenses/>.  ﻿
