@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Calculate true ECS coordinates using corrected WCS parameters.
 
-Copyright (C) 2024  Gabriel Szász
+Copyright (C) 2024 Gabriel Szász
+
 SPDX-License-Identifier: GPL-3.0-or-later
 
 This file is part of True-ECS.
